@@ -4,10 +4,13 @@ O flow de um tokenizer é:
 2. pegar nesses tokenized text (ex. [[This], [is], [an], [example], [.]]) e passar para token IDs
 3. Criar os token embeddings
 """
+
 import tiktoken
-from src.data.gptDataset import GPTDataset
+from src.building_an_llm.data_preparation_and_sampling.gptDataset import GPTDataset
+from src.building_an_llm.model.embeddings import InputEmbeddings
 from torch.utils.data import DataLoader
 import torch
+
 
 def create_dataloader_v1(
     txt,
@@ -34,11 +37,12 @@ def create_dataloader_v1(
 
 
 def main():
-    with open("text/the-veredict.txt", "r", encoding="utf-8") as f:
+    with open("data/the-veredict.txt", "r", encoding="utf-8") as f:
         raw_text = f.read()
 
+    max_length = 4
     dataloader = create_dataloader_v1(
-        raw_text, batch_size=8, max_length=4, stride=4, shuffle=False
+        raw_text, batch_size=8, max_length=max_length, stride=max_length, shuffle=False
     )
 
     data_iter = iter(dataloader)
@@ -47,24 +51,12 @@ def main():
     print("\nInputs shape:\n", inputs.shape)
 
     vocab_size = 50257
-    output_dim = 256  
+    output_dim = 256
 
     torch.manual_seed(123)
-    token_embedding_layer = torch.nn.Embedding(vocab_size, output_dim)
-    token_embeddings = token_embedding_layer(inputs)
-    print(token_embeddings.shape)
-
-    context_length = max_length = 4
-    pos_embedding_layer = torch.nn.Embedding(context_length, output_dim)
-    pos_embeddings = pos_embedding_layer(torch.arange(context_length))
-
-    print(pos_embeddings.shape)
-
-    input_embeddings = token_embeddings + pos_embeddings
-    print(input_embeddings.shape)
-
-
-
+    embedding_layer = InputEmbeddings(vocab_size, output_dim, context_length=max_length)
+    input_embeddings = embedding_layer(inputs)
+    print("Input embeddings shape:\n", input_embeddings.shape)
 
 
 if __name__ == "__main__":
