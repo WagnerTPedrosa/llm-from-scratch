@@ -1,4 +1,4 @@
-from src.building_an_llm.self_attention.self_attention import SelfAttention
+from src.building_an_llm.self_attention.self_attention import SelfAttention, CausalAttention
 import torch
 
 
@@ -35,25 +35,14 @@ def main():
         ]
     )
 
-    torch.manual_seed(789)
-    self_attention = SelfAttention(3, 2)
-
-    queries = self_attention.W_query(inputs)
-    keys = self_attention.W_key(inputs)
-
-    # [Step 1] Create the attention scores and compute the attention weigths
-    attention_scores, attention_weights = (
-        compute_attention_matrix_and_attention_weights(queries, keys)
-    )
-    print(attention_weights)
-
-    # [Step 2] Create and apply a mask where the values above the diagonal are zero
-    masked = create_and_apply_mask(attention_scores)
-    print(masked)
-
-    # [Step 3] renormalize the attention weights to sum up to 1 in each row
-    attention_weights = normalize_attention_weights(masked, keys)
-    print(attention_weights)
+    batch = torch.stack((inputs, inputs), dim=0)
+    
+    torch.manual_seed(123)
+    context_length = batch.shape[1]
+    ca = CausalAttention(3, 2, context_length, 0.0)
+    context_vecs = ca(batch)
+    print("context_vecs.shape:", context_vecs.shape)
+    
 
 
 if __name__ == "__main__":
