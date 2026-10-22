@@ -7,7 +7,7 @@ O flow de um tokenizer é:
 
 import tiktoken
 from src.building_an_llm.data_preparation_and_sampling.gptDataset import GPTDataset
-from src.building_an_llm.model.embeddings import InputEmbeddings
+from building_an_llm.data_preparation_and_sampling.embeddings import InputEmbeddings
 from torch.utils.data import DataLoader
 import torch
 
