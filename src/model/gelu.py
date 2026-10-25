@@ -1,12 +1,14 @@
 import torch
 import torch.nn as nn
 
-"""
-The smoothness of GELU can lead to better optimization properties during training, as it allows for more nuanced adjustments to the model’s parameters
-"""
-
 
 class GELU(nn.Module):
+    """GELU activation, tanh approximation (the one GPT-2 uses).
+
+    Unlike ReLU it is smooth and lets small negative values through, which can
+    make optimization easier.
+    """
+
     def __init__(self):
         super().__init__()
 

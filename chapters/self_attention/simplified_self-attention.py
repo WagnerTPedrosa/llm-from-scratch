@@ -1,18 +1,15 @@
-"""
-Simplefied variant of self-attention, free from any trainable weigths
-"""
+"""Simplified self-attention, without trainable weights."""
 
 import torch
 
 
 def compute_attention_scores(inputs):
 
-    attention_scores = torch.empty(6, 6)
-    # Here we use matrix multiplication cause is faster but we can use this as well:
-    """for i, x_i in enumerate(inputs):
-        for j, x_j in enumerate(inputs):
-            attention_scores[i,j] = torch.dot(x_i, x_j)"""
-
+    # Matrix multiplication computes every pairwise dot product at once.
+    # Equivalent (but slower) loop:
+    #   for i, x_i in enumerate(inputs):
+    #       for j, x_j in enumerate(inputs):
+    #           attention_scores[i, j] = torch.dot(x_i, x_j)
     attention_scores = inputs @ inputs.T
     print(f"Attention Scores:\n {attention_scores}")
 
@@ -20,9 +17,10 @@ def compute_attention_scores(inputs):
 
 
 def normalize_attention_scores(attention_scores, dim=-1):
-    """
-    Here we use the softmax for normalization where the formula is torch.exp(x) / torch.exp(x).sum(dim=0) but this formula may encounter overflows if one value is way higher than the other
-    So we can use the torch softmax function that as already been optimized
+    """Normalize with softmax: exp(x) / exp(x).sum(dim).
+
+    The naive formula can overflow when a score is large, so we use torch.softmax,
+    which subtracts the max score before exp() to stay numerically stable.
     """
     attention_weights = torch.softmax(attention_scores, dim=dim)
     print(f"Attention weights:\n {attention_weights}")
@@ -37,7 +35,7 @@ def compute_context_vectors(attention_weights, inputs):
 
 
 def main():
-    # [Step 0] Here we start with an embedding vector of the frase "Your journey starts with one step"
+    # [Step 0] Here we start with an embedding vector of the phrase "Your journey starts with one step"
     inputs = torch.tensor(
         [
             [0.43, 0.15, 0.89],  # Your (x^1)
@@ -49,12 +47,12 @@ def main():
         ]
     )
 
-    # [Step 1] Compute the attention scores as the dot product to measure the similarity of how closely two vectores are aligned
+    # [Step 1] Compute the attention scores as the dot product to measure the similarity of how closely two vectors are aligned
     # the higher the dot product, the higher the similarity and attention score between two elements.
 
     attention_scores = compute_attention_scores(inputs=inputs)
 
-    # [Step 2] Normalize the attention scores we comptued in order to obtain attention weights that sum up to 1 (useful for interpretation and maintaining training stability un an LLM).
+    # [Step 2] Normalize the attention scores we computed in order to obtain attention weights that sum up to 1 (useful for interpretation and maintaining training stability in an LLM).
 
     attention_weights = normalize_attention_scores(attention_scores, dim=-1)
 

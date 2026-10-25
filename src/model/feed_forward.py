@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from src.gpt.transformer_blocks.gelu import GELU
+from src.model.gelu import GELU
 
 
 class FeedForward(nn.Module):
