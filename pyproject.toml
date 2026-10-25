@@ -1,10 +1,11 @@
 [project]
 name="llm-from-scratch"
 version = "0.0.1"
-requires-python = ">= 3.14"
+requires-python = ">=3.11,<3.12"
 dependencies = [
     "tiktoken", 
     "torch",
-    "torchvision",
-    "torchaudio"
+    "tensorflow==2.15.0",
+    "tensorflow-macos==2.15.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+    "tqdm>=4.66"
 ]

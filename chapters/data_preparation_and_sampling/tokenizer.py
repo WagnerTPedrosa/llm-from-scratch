@@ -1,8 +1,10 @@
-import re
+"""
+Simple word-level tokenizer, to understand how tokenization works.
 
+GPT-2 and later models use byte pair encoding (BPE) instead.
 """
-Simple Tokenizer just to understand how a tokenizer works. In the end GPT-2+ uses byte pair encoding (BPE) 
-"""
+
+import re
 
 
 class Tokenizer:
