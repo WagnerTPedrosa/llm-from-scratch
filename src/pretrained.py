@@ -5,7 +5,7 @@ from src.configs import GPT_CONFIG_124M, GPT2_MODEL_CONFIGS
 from src.model.gpt import GPTModel
 
 
-def load_openai_gpt2(model_size="124M", models_dir="gpt2"):
+def load_openai_gpt2(model_size="124M", models_dir="gpt2", drop_rate=GPT_CONFIG_124M["drop_rate"]):
     """Download OpenAI's GPT-2 weights and return a GPTModel (in eval mode) with them loaded."""
     from src.gpt_download import download_and_load_gpt2
 
@@ -13,6 +13,7 @@ def load_openai_gpt2(model_size="124M", models_dir="gpt2"):
     cfg = {
         **GPT_CONFIG_124M,
         **GPT2_MODEL_CONFIGS[model_size],
+        "drop_rate": drop_rate,
         "context_length": 1024,  # OpenAI's GPT-2 was trained with 1024
         "qkv_bias": True,  # OpenAI's GPT-2 uses bias in the Q, K, V layers
     }
