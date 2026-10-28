@@ -25,12 +25,13 @@ from src.finetuning.instruction_dataset import (
     format_input,
 )
 from src.generation import generate, text_to_token_ids, token_ids_to_text
+from src.device import get_device
 from src.pretrained import load_openai_gpt2
 from src.training import train_model_simple
 
 DATA_PATH = "data/instruction-data.json"
 RESPONSES_PATH = "data/instruction-data-with-response.json"
-FINETUNED_MODEL_PATH = "gpt2-medium355M-sft.pth"
+FINETUNED_MODEL_PATH = "checkpoints/gpt2-medium355M-sft.pth"
 
 
 # ---------------------------------------------------------------------------
@@ -152,7 +153,7 @@ def generate_model_scores(json_data, json_key, model="llama3"):
 
 def main():
     tokenizer = tiktoken.get_encoding("gpt2")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
 
     # [Step 1] Prepare the dataset: split it and create the data loaders
     with open(DATA_PATH, "r") as file:
@@ -191,6 +192,7 @@ def main():
             start_context=format_input(val_data[0]), tokenizer=tokenizer,
         )
         print(f"Training completed in {(time.time() - start_time) / 60:.2f} minutes.")
+        os.makedirs(os.path.dirname(FINETUNED_MODEL_PATH), exist_ok=True)
         torch.save(model.state_dict(), FINETUNED_MODEL_PATH)
         print(f"Model saved to {FINETUNED_MODEL_PATH}")
     model.eval()

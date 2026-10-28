@@ -3,6 +3,7 @@
     uv run python -m src.finetuning.classification
 """
 
+import os
 import time
 
 import pandas as pd
@@ -10,10 +11,12 @@ import tiktoken
 import torch
 from torch.utils.data import DataLoader
 
-from src.finetuning.data.spamdataset import SpamDataset
+from src.finetuning.spam_dataset import SpamDataset
+from src.device import get_device
 from src.pretrained import load_openai_gpt2
 
 DATA_DIR = "data/sms_spam_collection"
+MODEL_PATH = "checkpoints/review_classifier.pth"
 
 
 # ---------------------------------------------------------------------------
@@ -210,7 +213,7 @@ def classify_review(text, model, tokenizer, device, max_length, pad_token_id=502
 def main():
     torch.manual_seed(123)
     tokenizer = tiktoken.get_encoding("gpt2")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
 
     # [Step 1] Prepare the dataset: balance, split and create the data loaders
     train_loader, val_loader, test_loader = create_dataloaders(tokenizer, batch_size=8)
@@ -249,8 +252,9 @@ def main():
         print(f"{classify_review(text, model, tokenizer, device, max_length)}: {text}")
 
     # [Step 8] Save the fine-tuned model. Load it back with:
-    #   model.load_state_dict(torch.load("review_classifier.pth", map_location=device, weights_only=True))
-    torch.save(model.state_dict(), "review_classifier.pth")
+    #   model.load_state_dict(torch.load(MODEL_PATH, map_location=device, weights_only=True))
+    os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    torch.save(model.state_dict(), MODEL_PATH)
 
 
 if __name__ == "__main__":

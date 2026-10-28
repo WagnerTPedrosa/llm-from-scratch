@@ -27,6 +27,7 @@ uv run python main.py generate "Every effort moves you"   # generate text with O
 main.py                  # entry point: train | eval | generate
 src/
   configs.py             # model configs (GPT_CONFIG_124M, GPT-2 sizes)
+  device.py              # get_device: CUDA, then Apple MPS, then CPU
   model/                 # the architecture, nothing else
     attention.py         # MultiHeadAttention (causal)
     gelu.py              # GELU activation
@@ -42,13 +43,14 @@ src/
   gpt_download.py        # download GPT-2 checkpoint (from the book's repo)
   finetuning/
     classification.py    # fine-tune GPT-2 as a spam classifier (chapter 6)
-    data/spamdataset.py  # SpamDataset: tokenize + pad SMS messages
+    spam_dataset.py      # SpamDataset: tokenize + pad SMS messages
     instruction_dataset.py   # Alpaca prompt format, InstructionDataset, collate function
     instruction_following.py # fine-tune GPT-2 medium to follow instructions (chapter 7)
 chapters/                # step-by-step study code from the book
   data_preparation_and_sampling/
   self_attention/
 data/the-verdict.txt     # small training text used in the book
+checkpoints/             # fine-tuned weights (.pth), not in git
 ```
 
 Code in `src/` is what `main.py` uses. Code in `chapters/` is the step-by-step version from the book, kept for learning. Run any of it as a module, for example:
@@ -239,7 +241,7 @@ uv run python -m src.finetuning.classification
 
 **Step 7: Classify new messages.** `classify_review` applies the same preprocessing as training: tokenize, truncate, pad to 120 tokens, then take the argmax of the last token's logits.
 
-**Step 8: Save the model.** `torch.save(model.state_dict())` saves only the weights. To load them, build the same architecture first (GPT-2 plus the 2-class head) and call `load_state_dict(torch.load(path, weights_only=True))`. `weights_only=True` stops `torch.load` from running arbitrary code from the file.
+**Step 8: Save the model** to `checkpoints/review_classifier.pth`. `torch.save(model.state_dict())` saves only the weights. To load them, build the same architecture first (GPT-2 plus the 2-class head) and call `load_state_dict(torch.load(path, weights_only=True))`. `weights_only=True` stops `torch.load` from running arbitrary code from the file.
 
 ## Fine-tuning to follow instructions (chapter 7)
 
@@ -263,7 +265,7 @@ uv run python -m src.finetuning.instruction_following
 **Step 4: Fine-tune.**
 - **All the weights are trained** (no freezing as in chapter 6), because the model must change how it writes, not just add a small head.
 - **The training loop is the same as in pretraining** (`train_model_simple`): only the data changed. AdamW, lr 5e-5, weight decay 0.1, 2 epochs.
-- **Save the weights** to `gpt2-medium355M-sft.pth` ("sft" = supervised fine-tuning). Later runs load the file instead of training again. Delete it to retrain.
+- **Save the weights** to `checkpoints/gpt2-medium355M-sft.pth` ("sft" = supervised fine-tuning). Later runs load the file instead of training again. Delete it to retrain.
 
 **Step 5: Look at a few responses.** `generate_response` formats the entry, generates with greedy decoding until `<|endoftext|>`, and cuts off the prompt from the output. Comparing a few answers with the expected ones by hand is the quickest check.
 

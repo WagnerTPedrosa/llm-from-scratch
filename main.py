@@ -12,6 +12,7 @@ import torch
 
 from src.configs import GPT_CONFIG_124M
 from src.data import create_train_val_loaders
+from src.device import get_device
 from src.evaluation import calc_loss_loader
 from src.generation import generate, text_to_token_ids, token_ids_to_text
 from src.model.gpt import GPTModel
@@ -19,14 +20,6 @@ from src.pretrained import load_openai_gpt2
 from src.training import train_model_simple
 
 DATA_PATH = "data/the-verdict.txt"
-
-
-def get_device():
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
-    return torch.device("cpu")
 
 
 def load_text():
