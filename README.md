@@ -14,9 +14,11 @@ uv sync
 ## Usage
 
 ```bash
-uv run python main.py train --epochs 10                   # train from scratch on data/the-verdict.txt
-uv run python main.py eval                                # loss of OpenAI's GPT-2 on data/the-verdict.txt
-uv run python main.py generate "Every effort moves you"   # generate text with OpenAI's GPT-2
+uv run python -m src.pretraining train --epochs 10                   # train from scratch on data/the-verdict.txt
+uv run python -m src.pretraining eval                                # loss of OpenAI's GPT-2 on data/the-verdict.txt
+uv run python -m src.pretraining generate "Every effort moves you"   # generate text with OpenAI's GPT-2
+uv run python -m src.finetuning.classification                       # fine-tune GPT-2 as a spam classifier
+uv run python -m src.finetuning.instruction_following                # fine-tune GPT-2 medium to follow instructions
 ```
 
 `eval` and `generate` accept `--model-size` (`124M`, `355M`, `774M`, `1558M`). The device is picked automatically: CUDA, then Apple MPS, then CPU.
@@ -24,10 +26,10 @@ uv run python main.py generate "Every effort moves you"   # generate text with O
 ## Project structure
 
 ```
-main.py                  # entry point: train | eval | generate
 src/
   configs.py             # model configs (GPT_CONFIG_124M, GPT-2 sizes)
   device.py              # get_device: CUDA, then Apple MPS, then CPU
+  pretraining.py         # chapter 5 commands: train | eval | generate
   model/                 # the architecture, nothing else
     attention.py         # MultiHeadAttention (causal)
     gelu.py              # GELU activation
@@ -53,7 +55,7 @@ data/the-verdict.txt     # small training text used in the book
 checkpoints/             # fine-tuned weights (.pth), not in git
 ```
 
-Code in `src/` is what `main.py` uses. Code in `chapters/` is the step-by-step version from the book, kept for learning. Run any of it as a module, for example:
+Code in `src/` is the project itself. Code in `chapters/` is the step-by-step version from the book, kept for learning. Run any of it as a module, for example:
 
 ```bash
 uv run python -m chapters.self_attention.multi_head_self_attention
@@ -177,9 +179,9 @@ Putting the pieces together into GPT-2 (see the [architecture diagram](#architec
 Training the model to predict the next token, and loading OpenAI's pretrained weights.
 
 ```bash
-uv run python main.py train --epochs 10
-uv run python main.py eval
-uv run python main.py generate "Every effort moves you"
+uv run python -m src.pretraining train --epochs 10
+uv run python -m src.pretraining eval
+uv run python -m src.pretraining generate "Every effort moves you"
 ```
 
 **Step 1: Measure how wrong the model is** (`src/evaluation.py`).
@@ -208,7 +210,7 @@ uv run python main.py generate "Every effort moves you"
 - **Why.** Pretraining GPT-2 on a large corpus costs far more compute than a laptop has. OpenAI released the weights, so we load them into *our* architecture.
 - **Config changes to match OpenAI.** `context_length = 1024` and `qkv_bias = True`.
 - **Converting the weights.** OpenAI stores Q, K and V in one matrix, which we split in 3. TensorFlow stores linear weights as `(in, out)` and PyTorch as `(out, in)`, hence the `.T`. The output head reuses the token embeddings (weight tying).
-- **Check.** `main.py eval` gives a train loss of 3.755 and a validation loss of 3.560 on *The Verdict*. This matches the book, which confirms the weights were loaded correctly.
+- **Check.** `src.pretraining eval` gives a train loss of 3.755 and a validation loss of 3.560 on *The Verdict*. This matches the book, which confirms the weights were loaded correctly.
 
 ## Fine-tuning for classification (chapter 6)
 

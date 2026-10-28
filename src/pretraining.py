@@ -1,8 +1,8 @@
-"""Entry point.
+"""Pretraining and OpenAI's GPT-2 weights (chapter 5).
 
-    python main.py train                 # train a GPT from scratch on the-verdict.txt
-    python main.py eval                  # loss of OpenAI's GPT-2 weights on the-verdict.txt
-    python main.py generate "Some text"  # generate text with OpenAI's GPT-2 weights
+    uv run python -m src.pretraining train                 # train a GPT from scratch on the-verdict.txt
+    uv run python -m src.pretraining eval                  # loss of OpenAI's GPT-2 weights on the-verdict.txt
+    uv run python -m src.pretraining generate "Some text"  # generate text with OpenAI's GPT-2 weights
 """
 
 import argparse
