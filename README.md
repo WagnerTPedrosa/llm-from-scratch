@@ -2,12 +2,20 @@
 
 The goal of this repository is to understand and implement a GPT from scratch following [*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch) by Sebastian Raschka ([official repo](https://github.com/rasbt/LLMs-from-scratch)).
 
-## Repo Structure
+## Contents
 1. [Setup](#setup)
 2. [Usage](#usage)
-3. [Project Strucutre](#project-structure)
+3. [Project Structure](#project-structure)
 4. [Architecture](#architecture)
 5. [Book Chapters](#book-chapters)
+6. Study notes
+   - [Working with text data (chapter 2)](#working-with-text-data-chapter-2)
+   - [Attention mechanisms (chapter 3)](#attention-mechanisms-chapter-3)
+   - [Implementing a GPT model (chapter 4)](#implementing-a-gpt-model-chapter-4)
+   - [Pretraining on unlabeled data (chapter 5)](#pretraining-on-unlabeled-data-chapter-5)
+   - [Fine-tuning for classification (chapter 6)](#fine-tuning-for-classification-chapter-6)
+   - [Fine-tuning to follow instructions (chapter 7)](#fine-tuning-to-follow-instructions-chapter-7)
+7. [Credits](#credits)
 
 ## Setup
 
