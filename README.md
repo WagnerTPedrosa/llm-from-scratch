@@ -1,7 +1,13 @@
 # LLM from scratch
 
-A GPT-2 (124M) implemented from scratch in PyTorch, following [*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch) by Sebastian Raschka ([official repo](https://github.com/rasbt/LLMs-from-scratch)).
+The goal of this repository is to understand and implement a GPT from scratch following [*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch) by Sebastian Raschka ([official repo](https://github.com/rasbt/LLMs-from-scratch)).
 
+## Repo Structure
+1. [Setup](#setup)
+2. [Usage](#usage)
+3. [Project Strucutre](#project-structure)
+4. [Architecture](#architecture)
+5. [Book Chapters](#book-chapters)
 
 ## Setup
 
@@ -20,8 +26,6 @@ uv run python -m src.pretraining generate "Every effort moves you"   # generate 
 uv run python -m src.finetuning.classification                       # fine-tune GPT-2 as a spam classifier
 uv run python -m src.finetuning.instruction_following                # fine-tune GPT-2 medium to follow instructions
 ```
-
-`eval` and `generate` accept `--model-size` (`124M`, `355M`, `774M`, `1558M`). The device is picked automatically: CUDA, then Apple MPS, then CPU.
 
 ## Project structure
 
@@ -79,7 +83,7 @@ token ids
 
 GPT-2 124M: 12 layers, 12 heads, 768-dim embeddings, 50,257-token vocabulary.
 
-## Book chapters → code
+## Book Chapters
 
 | Chapter | Topic | Code | Status |
 |---|---|---|---|
@@ -281,4 +285,4 @@ uv run python -m src.finetuning.instruction_following
 
 ## Credits
 
-Based on *Build a Large Language Model (From Scratch)* by Sebastian Raschka. `src/gpt_download.py` is taken from the [book's repository](https://github.com/rasbt/LLMs-from-scratch).
+Based on *[*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch)* by Sebastian Raschka.

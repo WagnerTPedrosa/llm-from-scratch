@@ -524,116 +524,139 @@
     {
         "instruction": "What is the formula for calculating work done?",
         "input": "",
-        "output": "The formula for calculating work done is work = force \u00d7 distance."
+        "output": "The formula for calculating work done is work = force \u00d7 distance.",
+        "model_response": "The formula for calculating work done is W = (1 - H)2 + (1 - C)3 + (1 - D)4 + (1 - E)5 + (1 - F)6 + (1 - G)7 + (1 - H)8 + (1 - I)9 + (1 - J)10 + (1 - K)11 + (1 - L)12 + (1 - M)13 + (1 - N)14 + (1 - O)15 + (1 - P)16 + (1 - Q)17 + (1 - R)18 + (1 - S)19 + (1 - T)20 + (1 - U)21 + (1 - V)22 + (1 - W)23 + (1 - X)24 + (1 - Y)25 + (1 - Z)26 + (1 - W)27 + (1 - X)28 + (1 - Y)29 + (1 - Z)30 + (1 - W)31 + (1 - X)32 + (1 - Y)33 + (1 - Z)34 + (1 - W)35 + (1 -"
     },
     {
         "instruction": "What is the chemical formula for ammonium nitrate?",
         "input": "",
-        "output": "The chemical formula for ammonium nitrate is NH4NO3."
+        "output": "The chemical formula for ammonium nitrate is NH4NO3.",
+        "model_response": "The chemical formula for ammonium nitrate is NH3."
     },
     {
         "instruction": "What is the molecular formula for water?",
         "input": "",
-        "output": "The molecular formula for water is H2O."
+        "output": "The molecular formula for water is H2O.",
+        "model_response": "The molecular formula for water is H2O2."
     },
     {
         "instruction": "Rewrite the given sentence to describe the same thing in a positive way.",
         "input": "The food was not good.",
-        "output": "The food could use some improvement."
+        "output": "The food could use some improvement.",
+        "model_response": "The food was not good."
     },
     {
         "instruction": "What is the opposite of 'lazy'?",
         "input": "",
-        "output": "The opposite of 'lazy' is 'diligent'."
+        "output": "The opposite of 'lazy' is 'diligent'.",
+        "model_response": "The opposite of 'lazy' is 'attentive'."
     },
     {
         "instruction": "Name three essential vitamins for human health.",
         "input": "",
-        "output": "1. Vitamin A\n2. Vitamin C\n3. Vitamin D"
+        "output": "1. Vitamin A\n2. Vitamin C\n3. Vitamin D",
+        "model_response": "1. Vitamin B12\n2. Vitamin C\n3. Vitamin B6"
     },
     {
         "instruction": "Define the term 'simile'.",
         "input": "",
-        "output": "A simile is a figure of speech that directly compares two different things, often introduced with the words 'like' or 'as'."
+        "output": "A simile is a figure of speech that directly compares two different things, often introduced with the words 'like' or 'as'.",
+        "model_response": "A simile is a figurative representation of a sound."
     },
     {
         "instruction": "What is the boiling point of chlorine in Celsius?",
         "input": "",
-        "output": "The boiling point of chlorine is -34 degrees Celsius."
+        "output": "The boiling point of chlorine is -34 degrees Celsius.",
+        "model_response": "The boiling point of chlorine is -196.5 degrees Celsius."
     },
     {
         "instruction": "Translate 'My name is' into French.",
         "input": "",
-        "output": "The French translation of 'My name is' is 'Je m'appelle'."
+        "output": "The French translation of 'My name is' is 'Je m'appelle'.",
+        "model_response": "The French translation of 'My name is' is 'Comment \u00e7a va?'."
     },
     {
         "instruction": "Convert 200 centimeters to meters.",
         "input": "",
-        "output": "200 centimeters is 2 meters."
+        "output": "200 centimeters is 2 meters.",
+        "model_response": "200 centimeters is 0.2 meters."
     },
     {
         "instruction": "What is the chemical symbol for zinc?",
         "input": "",
-        "output": "Zn."
+        "output": "Zn.",
+        "model_response": "The chemical symbol for zinc is Zn."
     },
     {
         "instruction": "What is the formula for calculating force?",
         "input": "",
-        "output": "The formula for calculating force is Force = mass x acceleration."
+        "output": "The formula for calculating force is Force = mass x acceleration.",
+        "model_response": "The formula for calculating force is (F = mv\u00b2 + g)\u00b2 + c\u00b2."
     },
     {
         "instruction": "Generate a sentence using the word 'innovative'.",
         "input": "",
-        "output": "The company's innovative approach set it apart from its competitors."
+        "output": "The company's innovative approach set it apart from its competitors.",
+        "model_response": "She was very innovative and always had a new idea."
     },
     {
         "instruction": "Generate a sentence using the word 'generous'.",
         "input": "",
-        "output": "He is very generous and always helps those in need."
+        "output": "He is very generous and always helps those in need.",
+        "model_response": "She was very generous and gave the poor man a meal."
     },
     {
         "instruction": "What is an antonym of 'sharp'?",
         "input": "",
-        "output": "An antonym of 'sharp' is 'dull'."
+        "output": "An antonym of 'sharp' is 'dull'.",
+        "model_response": "An antonym of 'sharp' is 'thin'."
     },
     {
         "instruction": "Describe the basic structure of a neuron.",
         "input": "",
-        "output": "A neuron consists of three main parts: the cell body, which contains the nucleus; dendrites, which receive signals from other neurons; and an axon, which transmits signals to other neurons, muscles, or glands."
+        "output": "A neuron consists of three main parts: the cell body, which contains the nucleus; dendrites, which receive signals from other neurons; and an axon, which transmits signals to other neurons, muscles, or glands.",
+        "model_response": "A neuron is a type of synapse in the brain."
     },
     {
         "instruction": "Translate 'see you later' into Spanish.",
         "input": "",
-        "output": "Hasta luego"
+        "output": "Hasta luego",
+        "model_response": "Est\u00e1n leyendo see you later."
     },
     {
         "instruction": "What are the first 10 elements of the Fibonacci sequence?",
         "input": "",
-        "output": "0, 1, 1, 2, 3, 5, 8, 13, 21, 34."
+        "output": "0, 1, 1, 2, 3, 5, 8, 13, 21, 34.",
+        "model_response": "The first 10 elements of the Fibonacci sequence are: 1, 3, 5, 7, 9, 11, 13, 15, 21, 3, 5, 8, 11, 3, 9, 7, 11."
     },
     {
         "instruction": "What is an antonym of 'transparent'?",
         "input": "",
-        "output": "An antonym of 'transparent' is 'opaque'."
+        "output": "An antonym of 'transparent' is 'opaque'.",
+        "model_response": "An antonym of 'transparent' is 'illuminate'."
     },
     {
         "instruction": "What is the past tense of 'think'?",
         "input": "",
-        "output": "The past tense of 'think' is 'thought'."
+        "output": "The past tense of 'think' is 'thought'.",
+        "model_response": "The past tense of 'think' is 'to think'."
     },
     {
         "instruction": "Classify each sentence as either declarative, interrogative, imperative, or exclamatory.",
         "input": "Please open the door.",
-        "output": "The classification of the sentence 'Please open the door.' is imperative."
+        "output": "The classification of the sentence 'Please open the door.' is imperative.",
+        "model_response": "Please open the door."
     },
     {
         "instruction": "Rewrite the sentence to use a negative adverb.",
         "input": "She always remembers to call.",
-        "output": "She never forgets to call."
+        "output": "She never forgets to call.",
+        "model_response": "She always remembers to call."
     },
     {
         "instruction": "Convert 50 miles per hour to kilometers per hour.",
         "input": "",
-        "output": "50 miles per hour is approximately 80.47 kilometers per hour."
+        "output": "50 miles per hour is approximately 80.47 kilometers per hour.",
+        "model_response": "50 miles per hour is approximately 32.5 kilometers per hour."
     }
 ]
