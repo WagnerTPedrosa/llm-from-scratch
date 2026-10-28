@@ -43,6 +43,8 @@ src/
   finetuning/
     classification.py    # fine-tune GPT-2 as a spam classifier (chapter 6)
     data/spamdataset.py  # SpamDataset: tokenize + pad SMS messages
+    instruction_dataset.py   # Alpaca prompt format, InstructionDataset, collate function
+    instruction_following.py # fine-tune GPT-2 medium to follow instructions (chapter 7)
 chapters/                # step-by-step study code from the book
   data_preparation_and_sampling/
   self_attention/
@@ -82,7 +84,7 @@ GPT-2 124M: 12 layers, 12 heads, 768-dim embeddings, 50,257-token vocabulary.
 | 4 | Implementing a GPT model | `src/model/` |  Done |
 | 5 | Pretraining on unlabeled data | `src/training.py`, `src/evaluation.py`, `src/generation.py`, `src/pretrained.py` | Done |
 | 6 | Fine-tuning for classification | `src/finetuning/` |  Done |
-| 7 | Fine-tuning to follow instructions | | In progress |
+| 7 | Fine-tuning to follow instructions | `src/finetuning/` | Done |
 
 ## Working with text data (chapter 2)
 
@@ -238,6 +240,40 @@ uv run python -m src.finetuning.classification
 **Step 7: Classify new messages.** `classify_review` applies the same preprocessing as training: tokenize, truncate, pad to 120 tokens, then take the argmax of the last token's logits.
 
 **Step 8: Save the model.** `torch.save(model.state_dict())` saves only the weights. To load them, build the same architecture first (GPT-2 plus the 2-class head) and call `load_state_dict(torch.load(path, weights_only=True))`. `weights_only=True` stops `torch.load` from running arbitrary code from the file.
+
+## Fine-tuning to follow instructions (chapter 7)
+
+Teaches GPT-2 medium (355M) to answer instructions like "Rewrite the sentence using a simile" instead of just continuing the text.
+
+```bash
+uv run python -m src.finetuning.instruction_following
+```
+
+**Step 1: Prepare the dataset** (`src/finetuning/instruction_dataset.py`).
+- **The data.** 1,100 entries, each with an `instruction`, an optional `input` and the expected `output`. Split into 85% train, 10% test and 5% validation.
+- **Prompt format (Alpaca style).** `format_input` turns every entry into the same template: a fixed intro, `### Instruction:`, `### Input:` (only if there is one) and `### Response:`. The model learns that after `### Response:` comes the answer. The same template must be used at training and at generation time.
+- **Pad per batch, not per dataset.** Unlike chapter 6, `custom_collate_fn` pads each batch only to its own longest entry. This wastes fewer tokens, since entry lengths vary a lot.
+- **Targets = inputs shifted by one**, the same next-token task as pretraining. The model is trained on the whole text, prompt included.
+- **Ignore the padding in the loss.** All padding tokens in the targets except the first are replaced by `-100`. PyTorch's `cross_entropy` skips targets equal to `-100` (`ignore_index`), so the model is not trained to predict padding. The first one is kept as `<|endoftext|>`, so the model learns where to stop.
+
+**Step 2: Load GPT-2 medium with OpenAI's weights.** The 124M model is too small to follow instructions well, so we use the 355M (24 layers, 16 heads, 1,024-dim embeddings). Dropout is set to 0.
+
+**Step 3: Check the model before fine-tuning.** Given a prompt, the pretrained model just repeats or continues it, because it was only trained to predict the next token. The initial loss is about 3.83 (train) and 3.76 (validation), matching the book.
+
+**Step 4: Fine-tune.**
+- **All the weights are trained** (no freezing as in chapter 6), because the model must change how it writes, not just add a small head.
+- **The training loop is the same as in pretraining** (`train_model_simple`): only the data changed. AdamW, lr 5e-5, weight decay 0.1, 2 epochs.
+- **Save the weights** to `gpt2-medium355M-sft.pth` ("sft" = supervised fine-tuning). Later runs load the file instead of training again. Delete it to retrain.
+
+**Step 5: Look at a few responses.** `generate_response` formats the entry, generates with greedy decoding until `<|endoftext|>`, and cuts off the prompt from the output. Comparing a few answers with the expected ones by hand is the quickest check.
+
+**Step 6: Generate responses for the whole test set** and save them to `data/instruction-data-with-response.json`, with a new `model_response` field. This is slow, so if the file exists it is loaded instead. Delete it after training again.
+
+**Step 7: Score the responses with a bigger LLM.**
+- **Why.** Answers to instructions can be correct in many different words, so there is no simple accuracy. Instead, a larger model judges them ("LLM as a judge").
+- **How.** [Ollama](https://ollama.com) runs Llama 3 (8B) locally. For each entry it gets the prompt, the expected output and the model's response, and is asked for a score from 0 to 100. `seed` and `temperature 0` make the scores reproducible.
+- **Before running.** Install Ollama, then `ollama pull llama3` and `ollama serve`. `check_ollama_running` stops early with a clear error if it is not running.
+- **Result.** The book gets an average score of about 50. It is a rough measure, useful for comparing models or settings with each other.
 
 ## Credits
 
