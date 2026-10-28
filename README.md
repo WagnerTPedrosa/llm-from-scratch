@@ -1,7 +1,13 @@
 # LLM from scratch
 
-A GPT-2 (124M) implemented from scratch in PyTorch, following [*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch) by Sebastian Raschka ([official repo](https://github.com/rasbt/LLMs-from-scratch)).
+The goal of this repository is to understand and implement a GPT from scratch following [*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch) by Sebastian Raschka ([official repo](https://github.com/rasbt/LLMs-from-scratch)).
 
+## Repo Structure
+1. [Setup](#setup)
+2. [Usage](#usage)
+3. [Project Strucutre](#project-structure)
+4. [Architecture](#architecture)
+5. [Book Chapters](#book-chapters)
 
 ## Setup
 
@@ -14,19 +20,20 @@ uv sync
 ## Usage
 
 ```bash
-uv run python main.py train --epochs 10                   # train from scratch on data/the-verdict.txt
-uv run python main.py eval                                # loss of OpenAI's GPT-2 on data/the-verdict.txt
-uv run python main.py generate "Every effort moves you"   # generate text with OpenAI's GPT-2
+uv run python -m src.pretraining train --epochs 10                   # train from scratch on data/the-verdict.txt
+uv run python -m src.pretraining eval                                # loss of OpenAI's GPT-2 on data/the-verdict.txt
+uv run python -m src.pretraining generate "Every effort moves you"   # generate text with OpenAI's GPT-2
+uv run python -m src.finetuning.classification                       # fine-tune GPT-2 as a spam classifier
+uv run python -m src.finetuning.instruction_following                # fine-tune GPT-2 medium to follow instructions
 ```
-
-`eval` and `generate` accept `--model-size` (`124M`, `355M`, `774M`, `1558M`). The device is picked automatically: CUDA, then Apple MPS, then CPU.
 
 ## Project structure
 
 ```
-main.py                  # entry point: train | eval | generate
 src/
   configs.py             # model configs (GPT_CONFIG_124M, GPT-2 sizes)
+  device.py              # get_device: CUDA, then Apple MPS, then CPU
+  pretraining.py         # chapter 5 commands: train | eval | generate
   model/                 # the architecture, nothing else
     attention.py         # MultiHeadAttention (causal)
     gelu.py              # GELU activation
@@ -42,14 +49,17 @@ src/
   gpt_download.py        # download GPT-2 checkpoint (from the book's repo)
   finetuning/
     classification.py    # fine-tune GPT-2 as a spam classifier (chapter 6)
-    data/spamdataset.py  # SpamDataset: tokenize + pad SMS messages
+    spam_dataset.py      # SpamDataset: tokenize + pad SMS messages
+    instruction_dataset.py   # Alpaca prompt format, InstructionDataset, collate function
+    instruction_following.py # fine-tune GPT-2 medium to follow instructions (chapter 7)
 chapters/                # step-by-step study code from the book
   data_preparation_and_sampling/
   self_attention/
 data/the-verdict.txt     # small training text used in the book
+checkpoints/             # fine-tuned weights (.pth), not in git
 ```
 
-Code in `src/` is what `main.py` uses. Code in `chapters/` is the step-by-step version from the book, kept for learning. Run any of it as a module, for example:
+Code in `src/` is the project itself. Code in `chapters/` is the step-by-step version from the book, kept for learning. Run any of it as a module, for example:
 
 ```bash
 uv run python -m chapters.self_attention.multi_head_self_attention
@@ -73,7 +83,7 @@ token ids
 
 GPT-2 124M: 12 layers, 12 heads, 768-dim embeddings, 50,257-token vocabulary.
 
-## Book chapters → code
+## Book Chapters
 
 | Chapter | Topic | Code | Status |
 |---|---|---|---|
@@ -82,7 +92,7 @@ GPT-2 124M: 12 layers, 12 heads, 768-dim embeddings, 50,257-token vocabulary.
 | 4 | Implementing a GPT model | `src/model/` |  Done |
 | 5 | Pretraining on unlabeled data | `src/training.py`, `src/evaluation.py`, `src/generation.py`, `src/pretrained.py` | Done |
 | 6 | Fine-tuning for classification | `src/finetuning/` |  Done |
-| 7 | Fine-tuning to follow instructions | | In progress |
+| 7 | Fine-tuning to follow instructions | `src/finetuning/` | Done |
 
 ## Working with text data (chapter 2)
 
@@ -173,9 +183,9 @@ Putting the pieces together into GPT-2 (see the [architecture diagram](#architec
 Training the model to predict the next token, and loading OpenAI's pretrained weights.
 
 ```bash
-uv run python main.py train --epochs 10
-uv run python main.py eval
-uv run python main.py generate "Every effort moves you"
+uv run python -m src.pretraining train --epochs 10
+uv run python -m src.pretraining eval
+uv run python -m src.pretraining generate "Every effort moves you"
 ```
 
 **Step 1: Measure how wrong the model is** (`src/evaluation.py`).
@@ -204,7 +214,7 @@ uv run python main.py generate "Every effort moves you"
 - **Why.** Pretraining GPT-2 on a large corpus costs far more compute than a laptop has. OpenAI released the weights, so we load them into *our* architecture.
 - **Config changes to match OpenAI.** `context_length = 1024` and `qkv_bias = True`.
 - **Converting the weights.** OpenAI stores Q, K and V in one matrix, which we split in 3. TensorFlow stores linear weights as `(in, out)` and PyTorch as `(out, in)`, hence the `.T`. The output head reuses the token embeddings (weight tying).
-- **Check.** `main.py eval` gives a train loss of 3.755 and a validation loss of 3.560 on *The Verdict*. This matches the book, which confirms the weights were loaded correctly.
+- **Check.** `src.pretraining eval` gives a train loss of 3.755 and a validation loss of 3.560 on *The Verdict*. This matches the book, which confirms the weights were loaded correctly.
 
 ## Fine-tuning for classification (chapter 6)
 
@@ -237,8 +247,42 @@ uv run python -m src.finetuning.classification
 
 **Step 7: Classify new messages.** `classify_review` applies the same preprocessing as training: tokenize, truncate, pad to 120 tokens, then take the argmax of the last token's logits.
 
-**Step 8: Save the model.** `torch.save(model.state_dict())` saves only the weights. To load them, build the same architecture first (GPT-2 plus the 2-class head) and call `load_state_dict(torch.load(path, weights_only=True))`. `weights_only=True` stops `torch.load` from running arbitrary code from the file.
+**Step 8: Save the model** to `checkpoints/review_classifier.pth`. `torch.save(model.state_dict())` saves only the weights. To load them, build the same architecture first (GPT-2 plus the 2-class head) and call `load_state_dict(torch.load(path, weights_only=True))`. `weights_only=True` stops `torch.load` from running arbitrary code from the file.
+
+## Fine-tuning to follow instructions (chapter 7)
+
+Teaches GPT-2 medium (355M) to answer instructions like "Rewrite the sentence using a simile" instead of just continuing the text.
+
+```bash
+uv run python -m src.finetuning.instruction_following
+```
+
+**Step 1: Prepare the dataset** (`src/finetuning/instruction_dataset.py`).
+- **The data.** 1,100 entries, each with an `instruction`, an optional `input` and the expected `output`. Split into 85% train, 10% test and 5% validation.
+- **Prompt format (Alpaca style).** `format_input` turns every entry into the same template: a fixed intro, `### Instruction:`, `### Input:` (only if there is one) and `### Response:`. The model learns that after `### Response:` comes the answer. The same template must be used at training and at generation time.
+- **Pad per batch, not per dataset.** Unlike chapter 6, `custom_collate_fn` pads each batch only to its own longest entry. This wastes fewer tokens, since entry lengths vary a lot.
+- **Targets = inputs shifted by one**, the same next-token task as pretraining. The model is trained on the whole text, prompt included.
+- **Ignore the padding in the loss.** All padding tokens in the targets except the first are replaced by `-100`. PyTorch's `cross_entropy` skips targets equal to `-100` (`ignore_index`), so the model is not trained to predict padding. The first one is kept as `<|endoftext|>`, so the model learns where to stop.
+
+**Step 2: Load GPT-2 medium with OpenAI's weights.** The 124M model is too small to follow instructions well, so we use the 355M (24 layers, 16 heads, 1,024-dim embeddings). Dropout is set to 0.
+
+**Step 3: Check the model before fine-tuning.** Given a prompt, the pretrained model just repeats or continues it, because it was only trained to predict the next token. The initial loss is about 3.83 (train) and 3.76 (validation), matching the book.
+
+**Step 4: Fine-tune.**
+- **All the weights are trained** (no freezing as in chapter 6), because the model must change how it writes, not just add a small head.
+- **The training loop is the same as in pretraining** (`train_model_simple`): only the data changed. AdamW, lr 5e-5, weight decay 0.1, 2 epochs.
+- **Save the weights** to `checkpoints/gpt2-medium355M-sft.pth` ("sft" = supervised fine-tuning). Later runs load the file instead of training again. Delete it to retrain.
+
+**Step 5: Look at a few responses.** `generate_response` formats the entry, generates with greedy decoding until `<|endoftext|>`, and cuts off the prompt from the output. Comparing a few answers with the expected ones by hand is the quickest check.
+
+**Step 6: Generate responses for the whole test set** and save them to `data/instruction-data-with-response.json`, with a new `model_response` field. This is slow, so if the file exists it is loaded instead. Delete it after training again.
+
+**Step 7: Score the responses with a bigger LLM.**
+- **Why.** Answers to instructions can be correct in many different words, so there is no simple accuracy. Instead, a larger model judges them ("LLM as a judge").
+- **How.** [Ollama](https://ollama.com) runs Llama 3 (8B) locally. For each entry it gets the prompt, the expected output and the model's response, and is asked for a score from 0 to 100. `seed` and `temperature 0` make the scores reproducible.
+- **Before running.** Install Ollama, then `ollama pull llama3` and `ollama serve`. `check_ollama_running` stops early with a clear error if it is not running.
+- **Result.** The book gets an average score of about 50. It is a rough measure, useful for comparing models or settings with each other.
 
 ## Credits
 
-Based on *Build a Large Language Model (From Scratch)* by Sebastian Raschka. `src/gpt_download.py` is taken from the [book's repository](https://github.com/rasbt/LLMs-from-scratch).
+Based on *[*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch)* by Sebastian Raschka.
